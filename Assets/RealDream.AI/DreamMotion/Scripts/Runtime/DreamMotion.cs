@@ -3,13 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using RealDream;
-using RealDream.Network;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Serialization;
-using UnityEngine.Video;
-
+#if REALDREAM_MOTION
+using RealDream.Network;
 namespace RealDream.AI
 {
     public class DreamMotion : MonoBehaviour
@@ -181,3 +177,4 @@ namespace RealDream.AI
         }
     }
 }
+#endif

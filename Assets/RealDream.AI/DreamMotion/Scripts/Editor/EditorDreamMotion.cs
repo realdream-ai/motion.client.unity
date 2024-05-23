@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-
+#if REALDREAM_MOTION
 namespace RealDream.AI
 {
     [CustomEditor(typeof(DreamMotion))]
@@ -65,3 +65,4 @@ namespace RealDream.AI
         }
     }
 }
+#endif
