@@ -241,7 +241,7 @@ MonoBehaviour:
   - {fileID: 0}
   Scale: 1
   FrameRate: 60
-  MaxCount: 320
+  MaxCount: 305
   Frame: 207
 --- !u!4 &758752295
 Transform:
@@ -488,15 +488,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f02757aa28644db9281fe49e55959db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ServerIp: 162.14.107.166
-  ServerPort: 26950
-  OutputDir: Output/DreamMotion
   VideoPath: Assets/RealDream.AI/Examples/DreamMotion/Videos/Test15.mp4
   ModelPath: 
-  _isWorking: 0
-  _progress: 0
+  OutputDir: Output/DreamMotion
   Viewer: {fileID: 758752294}
-  FrameRate: 30
+  _curState: 0
+  _progress: 0
+  _awakeTaskPath: Assets/RealDream.AI/Examples/DreamMotion/Videos/Test18.mp4
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -16,33 +16,50 @@ namespace RealDream.AI
             base.OnInspectorGUI();
             _owner = target as DreamMotion;
             GUILayout.Space(20);
-            GUILayout.BeginHorizontal();
-
-            DrawButton(_owner.ModelPath, "BindModel");
-            DrawButton(_owner.VideoPath, "ParseVideo");
-
-            if (_owner._isWorking && GUILayout.Button("Stop"))
+            switch (_owner._curState)
             {
-                _owner.DoClear();
-            }
-
-            GUILayout.EndHorizontal();
-            GUILayout.Space(10);
-            
-            if (_owner._isWorking&& _owner._progress > 0)
-            {
-                if(_owner._progress>0.5f) 
-                   EditorGUILayout.LabelField("Next step would be slow, please wait for a while about 1-4 minutes");
-                EditorGUILayout.LabelField($"Progress: {(_owner._progress * 100):0.00}%");
+                case DreamMotion.State.Idle:
+                    GUILayout.BeginHorizontal();
+                    DrawButton(_owner.ModelPath, "BindModel");
+                    DrawButton(_owner.VideoPath, "ParseVideo");
+                    GUILayout.EndHorizontal();
+                    GUILayout.Space(10);
+                    break;
+                case DreamMotion.State.Done:
+                    break;
+                case DreamMotion.State.WaitingResult:
+                    if(_owner._progress>0.5f) 
+                        EditorGUILayout.LabelField("Next step would be slow, please wait for a while about 1-4 minutes");
+                    if (_owner._progress > 0)
+                        EditorGUILayout.LabelField($"Progress: {(_owner._progress * 100):0.00}%");
+                    GUILayout.Space(20);
+                    if (_owner._progress > 0)
+                    {
+                        if (GUILayout.Button("Stop"))
+                        {
+                            _owner.StopTask();
+                            EditorApplication.isPlaying = false;
+                        }
+                    }
+                    break;
             }
             GUILayout.Space(10);
         }
 
         void DrawButton(string path, string msg)
         {
-            if (!_owner._isWorking && File.Exists(path) && GUILayout.Button(msg))
+            if ( File.Exists(path) && GUILayout.Button(msg))
             {
-                _owner.UploadAsset(_owner.VideoPath);
+                if (!Application.isPlaying)
+                {
+                    _owner._awakeTaskPath = _owner.VideoPath;
+                    EditorApplication.isPlaying = true;
+                }
+                else
+                {
+                    _owner._awakeTaskPath = "";
+                    _owner.StartTask(_owner.VideoPath);
+                }
             }
         }
     }

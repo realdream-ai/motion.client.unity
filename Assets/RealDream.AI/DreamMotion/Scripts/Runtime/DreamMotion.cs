@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using RealDream;
 using RealDream.Network;
 using UnityEngine;
@@ -13,25 +14,48 @@ namespace RealDream.AI
 {
     public class DreamMotion : MonoBehaviour
     {
-        private NetClient _client;
-
-        public string OutputDir = "Assets/RealDream_Output";
-        public static DreamMotion Instance { get; private set; }
-
-        [Header("Config")] 
+        [Header("Input")] //
         public string VideoPath;
+
         [HideInInspector] public string ModelPath;
 
-        [Header("Runtime")] [HideInInspector] public bool _isWorking = false;
+        [Header("Output")] //
+        public string OutputDir = "Output/DreamMotion";
+
+        [Header("Debug")] //
+        public BVHPreview Viewer;
+
+        [Header("Runtime")] //
+        [HideInInspector]
+        public State _curState = State.Idle;
+
+        public enum State
+        {
+            Idle,
+            WaitingResult,
+            Done
+        }
+
         [Range(0, 1.0f)] [HideInInspector] public float _progress = 0;
         private GameEventRegisterService _eventRegister;
-        
-        [Header("Debug")] 
-        public BVHPreview Viewer;
         private int _curFrameRate = 60;
-        public void UploadAsset(string path, bool isFastMode = false)
+        private NetClient _client;
+        private string _curPath;
+
+        [HideInInspector] public string _awakeTaskPath;
+
+        private void Start()
         {
-            if (_isWorking)
+            if (!string.IsNullOrEmpty(_awakeTaskPath))
+            {
+                StartTask(_awakeTaskPath);
+                _awakeTaskPath = null;
+            }
+        }
+
+        public void StartTask(string path)
+        {
+            if (_curState == State.WaitingResult)
             {
                 UnityEngine.Debug.Log("Working, please wait for a while");
                 return;
@@ -43,21 +67,40 @@ namespace RealDream.AI
                 return;
             }
 
+            _curState = State.Idle;
             // check cache
+            var hashTag = HashUtil.CalcHash(path) + CacheUtil.CacheSplitTag;
+            var cachePath = PathUtil.GetAllPath(OutputDir, "*.*")
+                    .Where(a => !a.EndsWith(".meta"))
+                    .FirstOrDefault(a => Path.GetFileNameWithoutExtension(a).StartsWith(hashTag))
+                ;
+            if (!string.IsNullOrEmpty(cachePath))
+            {
+                Debug.Log("Load from cache " + cachePath);
+                ShowResult(cachePath);
+                return;
+            }
+
             DoClear();
-            
             if (Application.isPlaying)
-                StartCoroutine(StartTask(path));
+                StartCoroutine(DoTask(path));
             else
-                EditorCoroutineUtil.StartCoroutine(StartTask(path));
+                EditorCoroutineUtil.StartCoroutine(DoTask(path));
         }
 
-        IEnumerator StartTask(string path)
+
+        public void StopTask()
         {
-            _isWorking = true;
+            DoClear();
+        }
+
+
+        private IEnumerator DoTask(string path)
+        {
+            _curState = State.WaitingResult;
             DoAwake();
             _curPath = path;
-            while (_isWorking)
+            while (_curState == State.WaitingResult)
             {
                 _client.Update();
                 yield return null;
@@ -67,7 +110,29 @@ namespace RealDream.AI
             _progress = 0;
         }
 
-        private string _curPath;
+
+        private void DoAwake()
+        {
+            _eventRegister = new GameEventRegisterService();
+            _eventRegister.RegisterEvent(this);
+            _client = new NetClient();
+            _client.Awake(GlobalConfig.Instance.DefaultServerIp, GlobalConfig.Instance.DefaultServerPort);
+            _client.Start();
+        }
+
+        private void DoClear()
+        {
+            if (_client != null)
+            {
+                _client.Close();
+                _client = null;
+            }
+
+            _progress = 0;
+            _curState = State.Idle;
+        }
+
+
         private void OnEvent_OnServerConnected(object param)
         {
             UnityEngine.Debug.Log("OnEvent_OnServerConnected");
@@ -83,29 +148,6 @@ namespace RealDream.AI
             UnityEngine.Debug.Log($"OnServerProgress {progress}");
         }
 
-        private void DoAwake()
-        {
-            Instance = this;
-            _eventRegister = new GameEventRegisterService();
-            _eventRegister.RegisterEvent(this);
-            _client = new NetClient();
-            _client.Awake(GlobalConfig.Instance.DefaultServerIp, GlobalConfig.Instance.DefaultServerPort);
-            _client.Start();
-        }
-
-        public void DoClear()
-        {
-            if (_client != null)
-            {
-                _client.Close();
-                _client = null;
-            }
-
-            _isWorking = false;
-            _progress = 0;
-        }
-
-
         void OnEvent_OnServerResult(object param)
         {
             PathUtil.CreateDir(OutputDir);
@@ -115,17 +157,18 @@ namespace RealDream.AI
             var hash = (string)lst[2];
             var isVideo = fileName.EndsWith(".mp4");
             var postfix = isVideo ? ".bvh" : ".fbx";
-            if (fileName.Contains("@@")) // remove hash prefix
-            {
-                fileName = fileName.Split("@@")[1];
-            }
-            var path = Path.Combine(OutputDir, $"{fileName}{postfix}");
+            var path = Path.Combine(OutputDir, $"{hash}@{fileName}{postfix}");
             PathUtil.CreateDir(Path.GetDirectoryName(path));
             if (File.Exists(path))
                 File.Delete(path);
             Debug.Log($"OnResult to {path}");
             File.WriteAllBytes(path, bytes);
+            ShowResult(path);
+        }
 
+
+        private void ShowResult(string path)
+        {
             if (Viewer != null)
             {
                 Viewer.FilePath = path;
@@ -133,8 +176,8 @@ namespace RealDream.AI
                 Viewer.gameObject.SetActive(true);
                 Viewer.FrameRate = _curFrameRate;
             }
-            _isWorking = false;
-        }
 
+            _curState = State.Done;
+        }
     }
 }
