@@ -15,8 +15,6 @@ namespace RealDream.AI
     {
         private NetClient _client;
 
-        public string ServerIp = "100.100.35.183";
-        public int ServerPort = 26950;
         public string OutputDir = "Assets/RealDream_Output";
         public static DreamMotion Instance { get; private set; }
 
@@ -30,7 +28,7 @@ namespace RealDream.AI
         
         [Header("Debug")] 
         public BVHPreview Viewer;
-        public int FrameRate = 30;
+        private int _curFrameRate = 60;
         public void UploadAsset(string path, bool isFastMode = false)
         {
             if (_isWorking)
@@ -91,7 +89,7 @@ namespace RealDream.AI
             _eventRegister = new GameEventRegisterService();
             _eventRegister.RegisterEvent(this);
             _client = new NetClient();
-            _client.Awake(ServerIp, ServerPort);
+            _client.Awake(GlobalConfig.Instance.DefaultServerIp, GlobalConfig.Instance.DefaultServerPort);
             _client.Start();
         }
 
@@ -133,7 +131,7 @@ namespace RealDream.AI
                 Viewer.FilePath = path;
                 Viewer.Parse();
                 Viewer.gameObject.SetActive(true);
-                Viewer.FrameRate = FrameRate;
+                Viewer.FrameRate = _curFrameRate;
             }
             _isWorking = false;
         }
