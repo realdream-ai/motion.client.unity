@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "com.realdream.common": {
-      "version": "https://github.com/JiepengTan/rdx.common.git",
+      "version": "https://github.com/realdream-ai/rdx.common.unity.git",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "71f8cc06982504aac0df31415f1a9ba1c5d9e741"
+      "hash": "ff214ec7151f9a99476174872f64a4d8b6e62dfa"
     },
     "com.unity.editorcoroutines": {
       "version": "1.0.0",
