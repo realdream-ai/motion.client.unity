@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.realdream.common": {
-      "version": "https://github.com/realdream-ai/rdx.common.unity.git",
+      "version": "https://github.com/realdream-ai/motion.common.git",
       "depth": 0,
       "source": "git",
       "dependencies": {},

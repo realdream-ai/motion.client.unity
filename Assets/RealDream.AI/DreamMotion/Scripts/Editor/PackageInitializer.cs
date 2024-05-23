@@ -18,13 +18,13 @@ namespace RealDream.AI
 
         private static void RegisterPacks()
         {
-            var tag = "https://github.com/realdream-ai/rdx.common.unity.git";
+            var tag = "https://github.com/realdream-ai/motion.common.git";
             var packPath = "Packages/manifest.json";
             var packs = System.IO.File.ReadAllText(packPath);
             if (!packs.Contains(tag))
             {
                 UnityEngine.Debug.Log("RealDream RegisterPacks");
-                AddRequest request = Client.Add("https://github.com/realdream-ai/rdx.common.unity.git");
+                AddRequest request = Client.Add(tag);
                 while (!request.IsCompleted)
                 {
                 }
