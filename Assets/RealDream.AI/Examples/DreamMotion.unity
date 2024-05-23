@@ -184,7 +184,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TemplateRots: {fileID: 11400000, guid: 7c146320fb4d37990a281ce2409b98b5, type: 2}
-  PreviewPrefab: {fileID: 3314895249544893772, guid: 8142f0773b901ba90b186ed8d314a5fc, type: 3}
+  PreviewPrefab: {fileID: 3314895249544893772, guid: 50eed5bb91b271fdbb20f3f71d36bd2f, type: 3}
   FilePath: 
   Children:
   - {fileID: 0}
@@ -494,7 +494,7 @@ MonoBehaviour:
   Viewer: {fileID: 758752294}
   _curState: 0
   _progress: 0
-  _awakeTaskPath: Assets/RealDream.AI/Examples/DreamMotion/Videos/Test18.mp4
+  _awakeTaskPath: Assets/RealDream.AI/Examples/DreamMotion/Videos/Test15.mp4
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

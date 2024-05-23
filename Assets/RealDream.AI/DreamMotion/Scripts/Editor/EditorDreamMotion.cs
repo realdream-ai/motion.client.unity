@@ -43,6 +43,7 @@ namespace RealDream.AI
                     }
                     break;
             }
+
             GUILayout.Space(10);
         }
 

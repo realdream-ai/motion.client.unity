@@ -14,6 +14,12 @@ namespace RealDream.AI
 {
     public class DreamMotion : MonoBehaviour
     {
+        public enum State
+        {
+            Idle,
+            WaitingResult,
+            Done
+        }
         [Header("Input")] //
         public string VideoPath;
 
@@ -29,12 +35,6 @@ namespace RealDream.AI
         [HideInInspector]
         public State _curState = State.Idle;
 
-        public enum State
-        {
-            Idle,
-            WaitingResult,
-            Done
-        }
 
         [Range(0, 1.0f)] [HideInInspector] public float _progress = 0;
         private GameEventRegisterService _eventRegister;
@@ -42,7 +42,8 @@ namespace RealDream.AI
         private NetClient _client;
         private string _curPath;
 
-        [HideInInspector] public string _awakeTaskPath;
+        [Header("Runtime")] //
+        [HideInInspector]  public string _awakeTaskPath;
 
         private void Start()
         {
@@ -52,7 +53,6 @@ namespace RealDream.AI
                 _awakeTaskPath = null;
             }
         }
-
         public void StartTask(string path)
         {
             if (_curState == State.WaitingResult)
