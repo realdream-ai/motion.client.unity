@@ -1,0 +1,17 @@
+{
+    "name": "RealDream.DreamMotion.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:3afab464cc0ed1d8d8aeb3cf9e331c31",
+        "GUID:a9e3bc73c61f9cd4f8b4dcdd393a5698"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

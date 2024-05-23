@@ -1,0 +1,21 @@
+{
+    "name": "RealDream.DreamMotion.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b4f8eb3477226776293999e7e0061660",
+        "GUID:3afab464cc0ed1d8d8aeb3cf9e331c31",
+        "GUID:f41d6716bf730973e8578e0444e45fa7",
+        "GUID:a9e3bc73c61f9cd4f8b4dcdd393a5698"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
