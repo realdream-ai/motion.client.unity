@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 #if REALDREAM_MOTION
 using RealDream.Network;
+
 namespace RealDream.AI
 {
     public class DreamMotion : MonoBehaviour
@@ -16,6 +17,7 @@ namespace RealDream.AI
             WaitingResult,
             Done
         }
+
         [Header("Input")] //
         public string VideoPath;
 
@@ -39,7 +41,8 @@ namespace RealDream.AI
         private string _curPath;
 
         [Header("Runtime")] //
-        [HideInInspector]  public string _awakeTaskPath;
+        [HideInInspector]
+        public string _awakeTaskPath;
 
         private void Start()
         {
@@ -49,6 +52,7 @@ namespace RealDream.AI
                 _awakeTaskPath = null;
             }
         }
+
         public void StartTask(string path)
         {
             if (_curState == State.WaitingResult)
@@ -153,7 +157,8 @@ namespace RealDream.AI
             var hash = (string)lst[2];
             var isVideo = fileName.EndsWith(".mp4");
             var postfix = isVideo ? ".bvh" : ".fbx";
-            var path = Path.Combine(OutputDir, $"{hash}@{fileName}{postfix}");
+            var prefix = fileName.StartsWith(hash) ? "" : $"{hash}@";
+            var path = Path.Combine(OutputDir, $"{prefix}{fileName}{postfix}");
             PathUtil.CreateDir(Path.GetDirectoryName(path));
             if (File.Exists(path))
                 File.Delete(path);
