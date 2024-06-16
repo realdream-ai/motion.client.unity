@@ -12,7 +12,7 @@ namespace RealDream.AI
     public class DreamMotion : MonoBehaviour
     {
         public enum State
-        {
+        {　
             Idle,
             WaitingResult,
             Done
@@ -44,10 +44,12 @@ namespace RealDream.AI
         [HideInInspector]
         public string _awakeTaskPath;
 
+        private string _curFilePath;
         private void Start()
         {
             if (!string.IsNullOrEmpty(_awakeTaskPath))
             {
+                _curFilePath = _awakeTaskPath;
                 StartTask(_awakeTaskPath);
                 _awakeTaskPath = null;
             }
@@ -132,13 +134,6 @@ namespace RealDream.AI
             _curState = State.Idle;
         }
 
-
-        private void OnEvent_OnServerConnected(object param)
-        {
-            UnityEngine.Debug.Log("OnEvent_OnServerConnected");
-            FileTransferUtil.UploadFile(_curPath);
-        }
-
         private void OnEvent_OnServerProgress(object param)
         {
             var lst = (List<object>)param;
@@ -147,27 +142,43 @@ namespace RealDream.AI
             _progress = progress;
             UnityEngine.Debug.Log($"OnServerProgress {progress}");
         }
-
-        void OnEvent_OnServerResult(object param)
+        private void OnEvent_OnServerResService(object param)
         {
-            PathUtil.CreateDir(OutputDir);
-            var lst = (List<object>)param;
-            var fileName = (string)lst[0];
-            var bytes = (byte[])lst[1];
-            var hash = (string)lst[2];
-            var isVideo = fileName.EndsWith(".mp4");
-            var postfix = isVideo ? ".bvh" : ".fbx";
-            var prefix = fileName.StartsWith(hash) ? "" : $"{hash}@";
-            var path = Path.Combine(OutputDir, $"{prefix}{fileName}{postfix}");
-            PathUtil.CreateDir(Path.GetDirectoryName(path));
-            if (File.Exists(path))
-                File.Delete(path);
-            Debug.Log($"OnResult to {path}");
-            File.WriteAllBytes(path, bytes);
-            ShowResult(path);
+            SaveAndQuit(param);
+        }
+        private void OnEvent_OnServerConnected(object param)
+        {
+            UnityEngine.Debug.Log("OnEvent_OnServerConnected");
+            _RequestService(EServiceType.Mocap,(int)EDrawingServiceType.All, _curPath);
         }
 
+        private void _RequestService(EServiceType serviceType,int msgType, string path)
+        {
+            if (!File.Exists(path))
+            {
+                Debug.LogError("Can not find file: " + path);
+                return;
+            }
 
+            Debug.Log("RequestService " + serviceType + " " + path);
+            ClientSend.ReqService(serviceType,(int)msgType, path);
+        }
+        
+        private void SaveAndQuit(object param)
+        {
+            var lst = (List<object>)param;
+            var file = (string)lst[0];
+            var bytes = (byte[])lst[1];
+            PathUtil.CreateDir(OutputDir);
+            var hashTag = HashUtil.CalcHash(_curFilePath) + CacheUtil.CacheSplitTag;
+            var fileName = Path.GetFileName(_curFilePath);
+            var path = Path.Combine(OutputDir, hashTag +fileName+ ".bvh");
+            Debug.Log($"OnResult to {path}");
+            File.WriteAllBytes(path, bytes);
+            _client.Disconnect();
+            ShowResult(path);
+        }
+        
         private void ShowResult(string path)
         {
             if (Viewer != null)
